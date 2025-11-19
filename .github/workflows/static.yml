@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Your Registration</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #1a202c;
+            font-size: 28px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #718096;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .input-with-scan {
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-with-scan .form-input {
+            flex: 1;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 100%;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .btn-scan {
+            background: #48bb78;
+            color: white;
+            padding: 14px 20px;
+            white-space: nowrap;
+        }
+
+        .btn-scan:hover {
+            background: #38a169;
+        }
+
+        .success-message {
+            background: #f0fff4;
+            border: 2px solid #48bb78;
+            color: #22543d;
+            padding: 16px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+
+        .error-message {
+            background: #fff5f5;
+            border: 2px solid #fc8181;
+            color: #c53030;
+            padding: 16px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        #qr-reader {
+            display: none;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .qr-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .note {
+            background: #edf2f7;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #4a5568;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ðŸŽ‰ Welcome!</h1>
+        <p class="subtitle">Please complete your registration to access the network</p>
+
+        <div id="errorMessage" class="error-message"></div>
+        <div id="successMessage" class="success-message"></div>
+
+        <form id="registrationForm">
+            <div class="form-group">
+                <label for="fullname" class="form-label">Full Name *</label>
+                <input type="text" id="fullname" class="form-input" placeholder="Enter your full name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="mobile" class="form-label">Mobile Number *</label>
+                <input type="tel" id="mobile" class="form-input" placeholder="+20 XXX XXX XXXX" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email" class="form-label">Email Address (Optional)</label>
+                <input type="email" id="email" class="form-input" placeholder="your.email@example.com">
+            </div>
+
+            <div class="form-group">
+                <label for="voucher" class="form-label">Voucher Code</label>
+                <div class="input-with-scan">
+                    <input type="text" id="voucher" class="form-input" placeholder="Enter or scan voucher code">
+                    <button type="button" class="btn btn-scan" onclick="toggleQRScanner()">ðŸ“· Scan</button>
+                </div>
+            </div>
+
+            <!-- QR Reader Container -->
+            <div id="qr-reader"></div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Submit & Continue</button>
+            </div>
+        </form>
+
+        <div class="note">
+            <strong>âš™ï¸ Setup Instructions:</strong><br>
+            1. Create a Google Sheet<br>
+            2. Share it publicly or get API credentials<br>
+            3. Replace GOOGLE_SHEET_URL in the script below<br>
+            4. Data will be automatically saved
+        </div>
+    </div>
+
+    <!-- QR Code Scanner Library -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+    <script>
+        // ========================================
+        // CONFIGURATION - REPLACE WITH YOUR DETAILS
+        // ========================================
+        
+        // Option 1: Using Google Apps Script Web App (Recommended)
+        const GOOGLE_APPS_SCRIPT_URL = 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE';
+        
+        // Option 2: Using third-party service like SheetDB
+        const SHEETDB_URL = 'YOUR_SHEETDB_API_URL_HERE';
+        
+        // ========================================
+        // QR SCANNER FUNCTIONALITY
+        // ========================================
+        
+        let html5QrcodeScanner = null;
+        let isScanning = false;
+
+        function toggleQRScanner() {
+            const qrReader = document.getElementById('qr-reader');
+            
+            if (!isScanning) {
+                qrReader.style.display = 'block';
+                startQRScanner();
+            } else {
+                qrReader.style.display = 'none';
+                stopQRScanner();
+            }
+        }
+
+        function startQRScanner() {
+            isScanning = true;
+            
+            html5QrcodeScanner = new Html5Qrcode("qr-reader");
+            
+            html5QrcodeScanner.start(
+                { facingMode: "environment" },
+                {
+                    fps: 10,
+                    qrbox: { width: 250, height: 250 }
+                },
+                (decodedText, decodedResult) => {
+                    // QR Code successfully scanned
+                    document.getElementById('voucher').value = decodedText;
+                    showMessage('QR Code scanned successfully!', 'success');
+                    stopQRScanner();
+                },
+                (errorMessage) => {
+                    // Scanning error (ignore, it's normal)
+                }
+            ).catch((err) => {
+                showMessage('Unable to start camera. Please enter code manually.', 'error');
+                stopQRScanner();
+            });
+        }
+
+        function stopQRScanner() {
+            if (html5QrcodeScanner) {
+                html5QrcodeScanner.stop().then(() => {
+                    isScanning = false;
+                    document.getElementById('qr-reader').style.display = 'none';
+                }).catch((err) => {
+                    console.error('Error stopping scanner:', err);
+                });
+            }
+        }
+
+        // ========================================
+        // FORM SUBMISSION & GOOGLE SHEETS
+        // ========================================
+
+        document.getElementById('registrationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const fullname = document.getElementById('fullname').value;
+            const mobile = document.getElementById('mobile').value;
+            const email = document.getElementById('email').value;
+            const voucher = document.getElementById('voucher').value;
+            const timestamp = new Date().toLocaleString();
+
+            // Prepare data
+            const data = {
+                timestamp: timestamp,
+                fullname: fullname,
+                mobile: mobile,
+                email: email,
+                voucher: voucher
+            };
+
+            try {
+                // METHOD 1: Using Google Apps Script (Recommended)
+                await sendToGoogleSheets_AppsScript(data);
+                
+                // METHOD 2: Using SheetDB (Alternative)
+                // await sendToSheetDB(data);
+                
+                showMessage('âœ… Registration successful! You can now access the internet.', 'success');
+                
+                // Redirect after 3 seconds
+                setTimeout(() => {
+                    window.location.href = 'https://www.google.com';
+                }, 3000);
+                
+            } catch (error) {
+                showMessage('âŒ Error saving data. Please try again.', 'error');
+                console.error('Error:', error);
+            }
+        });
+
+        // ========================================
+        // METHOD 1: Google Apps Script
+        // ========================================
+        
+        async function sendToGoogleSheets_AppsScript(data) {
+            // You need to create a Google Apps Script Web App first
+            // See instructions below
+            
+            const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+            
+            return response;
+        }
+
+        // ========================================
+        // METHOD 2: SheetDB (Third-party service)
+        // ========================================
+        
+        async function sendToSheetDB(data) {
+            const response = await fetch(SHEETDB_URL, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    data: [data]
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to save data');
+            }
+            
+            return await response.json();
+        }
+
+        // ========================================
+        // HELPER FUNCTIONS
+        // ========================================
+        
+        function showMessage(message, type) {
+            const successDiv = document.getElementById('successMessage');
+            const errorDiv = document.getElementById('errorMessage');
+            
+            if (type === 'success') {
+                successDiv.textContent = message;
+                successDiv.style.display = 'block';
+                errorDiv.style.display = 'none';
+            } else {
+                errorDiv.textContent = message;
+                errorDiv.style.display = 'block';
+                successDiv.style.display = 'none';
+            }
+            
+            // Hide after 5 seconds
+            setTimeout(() => {
+                successDiv.style.display = 'none';
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+
+    <!-- 
+    ========================================
+    SETUP INSTRUCTIONS FOR GOOGLE SHEETS:
+    ========================================
+    
+    METHOD 1: Google Apps Script (FREE & RECOMMENDED)
+    
+    1. Create a new Google Sheet
+    2. Add headers in row 1: Timestamp | Full Name | Mobile | Email | Voucher
+    3. Go to Extensions > Apps Script
+    4. Delete any code and paste this:
+    
+    function doPost(e) {
+      var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+      var data = JSON.parse(e.postData.contents);
+      
+      sheet.appendRow([
+        data.timestamp,
+        data.fullname,
+        data.mobile,
+        data.email,
+        data.voucher
+      ]);
+      
+      return ContentService.createTextOutput(JSON.stringify({success: true}))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    5. Click Deploy > New deployment
+    6. Type: Web app
+    7. Execute as: Me
+    8. Who has access: Anyone
+    9. Click Deploy and copy the URL
+    10. Paste the URL in GOOGLE_APPS_SCRIPT_URL above
+    
+    ========================================
+    
+    METHOD 2: SheetDB (500 requests/month FREE)
+    
+    1. Go to https://sheetdb.io
+    2. Sign up for free
+    3. Connect your Google Sheet
+    4. Copy the API URL
+    5. Paste it in SHEETDB_URL above
+    
+    ========================================
+    -->
+</body>
+</html>
